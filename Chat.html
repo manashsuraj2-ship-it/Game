@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat</title>
+  <script>
+    async function loadMessages() {
+      let receiver = document.getElementById("receiver").value;
+      let res = await fetch("/messages/" + receiver);
+      let msgs = await res.json();
+      let chatBox = document.getElementById("chatBox");
+      chatBox.innerHTML = "";
+      msgs.forEach(m => {
+        chatBox.innerHTML += `<p><b>${m[0]}:</b> ${m[1]}</p>`;
+      });
+    }
+    setInterval(loadMessages, 2000);
+  </script>
+</head>
+<body>
+  <h2>Welcome {{ user }}</h2>
+  <input type="text" id="receiver" placeholder="Send to..."><br>
+  <textarea id="content" placeholder="Type message..."></textarea><br>
+  <button onclick="sendMessage()">Send</button>
+  <div id="chatBox"></div>
+
+  <script>
+    async function sendMessage() {
+      let receiver = document.getElementById("receiver").value;
+      let content = document.getElementById("content").value;
+      await fetch("/send", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: `receiver=${receiver}&content=${content}`
+      });
+      document.getElementById("content").value = "";
+      loadMessages();
+    }
+  </script>
+</body>
+</html>
